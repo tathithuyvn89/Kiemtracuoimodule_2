@@ -23,9 +23,10 @@ public class PhoneManage implements PhoneActivities {
         Scanner scanner= new Scanner(System.in);
         System.out.println("Nhập vào SDT: ");
         String phone =scanner.nextLine();
-        if (!vadiateEmail(phone)){
-            System.out.println("Ban da nhap sai email");
+        if (!vadiatePhoneNumber(phone)){
+            System.out.println("Ban da nhap sai dinh dang");
             addPhone();
+            return;
         }
         System.out.println("Nhập nhóm: ");
         String group = scanner.nextLine();
@@ -40,8 +41,9 @@ public class PhoneManage implements PhoneActivities {
         System.out.println("Nhập email: ");
         String email= scanner.nextLine();
         if (!vadiateEmail(email)){
-            System.out.println("Bạn đã nhập sai email");
+            System.out.println("Bạn đã nhập sai định dạng");
             addPhone();
+            return;
         }
         listPhone.add(new Phone(phone,group,name,sex,address,birthDay,email));
 
@@ -61,8 +63,9 @@ public class PhoneManage implements PhoneActivities {
             }
         }
         if (index!=-1){
-            int choose=scanner.nextInt();
+            int choose;
             do {
+
                 System.out.println("Bạn muốn sửa những thông tin nào trong số những thông tin sau: ");
                 System.out.println("1. Sửa nhóm");
                 System.out.println("2. Sửa họ và tên");
@@ -72,6 +75,8 @@ public class PhoneManage implements PhoneActivities {
                 System.out.println("6. Sửa email");
                 System.out.println("7. Thoát");
                 System.out.println("Lựa chọn của bạn là ");
+                choose=scanner.nextInt();
+                scanner.nextLine();
                 switch (choose){
                     case 1:
                         System.out.println("Nhập nhóm mới");
@@ -119,21 +124,53 @@ public class PhoneManage implements PhoneActivities {
     @Override
     public void searchPhone() {
         Scanner scanner= new Scanner(System.in);
-
-        System.out.println("Bạn muốn sửa thông tin của sdt nào: ");
-        String phoneNumber= scanner.nextLine();
-        int index=-1;
-        for (int i=0; i<listPhone.size();i++){
-            if (listPhone.get(i).getPhoneNumber().equals(phoneNumber)){
-                index=i;
+        int choose;
+        do {
+            System.out.println("Lựa chọn tìm kiếm theo SDT hoạc theo tên: ");
+            System.out.println("1. Tìm kiếm theo SDT");
+            System.out.println("2. Tìm kiếm theo Tên");
+            System.out.println("3. Thoát khỏi chương trình tìm kiếm");
+            System.out.println("Lựa chọn của bạn là");
+            choose=scanner.nextInt();
+            scanner.nextLine();
+            switch (choose){
+                case 1:
+                    System.out.println("Nhập SDT mà bạn cần tìm kiếm");
+                    String phoneNumber= scanner.nextLine();
+                    int index=-1;
+                    for (int i=0; i<listPhone.size();i++){
+                        if (listPhone.get(i).getPhoneNumber().contains(phoneNumber)){
+                            System.out.println(listPhone.get(i).toString());
+                            index=i;
+                        }
+                    }
+                    if (index==-1){
+                        System.out.println("SDT mà bạn tìm kiếm không tồn tại");
+                    }
+                    break;
+                case 2:
+                    System.out.println("Nhập tên mà bạn cần tìm kiếm");
+                    String name= scanner.nextLine();
+                    int indexName=-1;
+                    for (int i=0; i<listPhone.size();i++){
+                        if (listPhone.get(i).getPhoneNumber().contains(name)){
+                            System.out.println(listPhone.get(i).toString());
+                            indexName=i;
+                        }
+                    }
+                    if (indexName==-1){
+                        System.out.println("SDT mà bạn tìm kiếm không tồn tại");
+                    }
+                    break;
+                case 3:
+                    System.out.println("Thoát chương trình tìm kiếm");
+                    break;
+                default:
+                    System.out.println("Bạn đã nhập sai lựa chọn");
+                    break;
             }
-        }
-        if (index!=-1){
-            System.out.println("Đây là thông tin của SDT bạn cần tìm");
-            System.out.println(listPhone.get(index).toString());
-        } else {
-            System.out.println("SDT mà bạn tìm kiếm không tồn tại");
-        }
+        } while (choose!=3);
+
 
     }
 
@@ -153,9 +190,21 @@ public class PhoneManage implements PhoneActivities {
             System.out.println("Đây là thông tin của SDT bạn cần xóa.");
             System.out.println(listPhone.get(index).toString());
             System.out.println("SDT này sẽ bị xóa khỏi danh bạ");
-            listPhone.remove(index);
+            System.out.println("1. Xoa khoi danh ba");
+            System.out.println("2. Thoat");
+            System.out.println("Lựa chọn của bạn là: ");
+            int choose= scanner.nextInt();
+            if (choose==1){
+                listPhone.remove(index);
+            } else {
+                return;
+            }
+
+
         } else {
-            System.out.println("SDT mà bạn tìm kiếm không tồn tại");
+            System.out.println("SDT mà bạn tìm kiếm không tồn tại. Xin hay nhap lai");
+            deletePhone();
+
         }
     }
 
@@ -169,10 +218,21 @@ public class PhoneManage implements PhoneActivities {
             FileReader fileReader = new FileReader(file);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String line;
+            line = bufferedReader.readLine();
             while ((line = bufferedReader.readLine()) != null) {
                 String[] phones = line.split(",");
+                String phone= phones[0];
+                String group= phones[1];
+                String name= phones[2];
+                String sex= phones[3];
+                String address= phones[4];
+                String birthDay= phones[5];
+                String email= phones[6];
+                listPhone.add(new Phone(phone,group,name,sex,address,birthDay,email));
 
             }
+            fileReader.close();
+            bufferedReader.close();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -184,11 +244,23 @@ public class PhoneManage implements PhoneActivities {
 
     @Override
     public void saveToFile(String filePath) {
-
+     FileOutputStream fileOutputStream=null;
+     ObjectOutputStream objectOutputStream=null;
+      try{
+          fileOutputStream= new FileOutputStream(filePath);
+          objectOutputStream= new ObjectOutputStream(fileOutputStream);
+          objectOutputStream.writeObject(listPhone);
+          fileOutputStream.close();
+          objectOutputStream.close();
+      } catch (FileNotFoundException e) {
+          e.printStackTrace();
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
     }
 
     static boolean vadiatePhoneNumber( String phoneNumber){
-     String REGEX_PHONENUMBER ="^0[0-9]{7,}$";
+     String REGEX_PHONENUMBER ="^0+[0-9]{7,}+$";
         Pattern pattern= Pattern.compile(REGEX_PHONENUMBER);
         Matcher matcher= pattern.matcher(phoneNumber);
         return matcher.matches();
